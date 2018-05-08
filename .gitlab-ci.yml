@@ -25,6 +25,9 @@ stages:
 test_async:
   image: node:7
   stage: Code
+  artifacts:
+     paths:
+       - node_modules
   script:
    - npm install
 
