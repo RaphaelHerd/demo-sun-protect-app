@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: sun-protect.bbs-test-zone.com
+  name: sun-protect-external-srv
+  namespace: sun-protect
+  labels:
+    app: sun-protect-ds
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      name: http
+  selector:
+    app: sun-protect-ds

@@ -22,7 +22,7 @@ stages:
 #      paths:
 #        - target/*.jar
 
-test_async:
+get-dependencies:
   image: node:7
   stage: Code
   artifacts:
@@ -37,11 +37,6 @@ docker-build:
    - docker build -t "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" .
    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
    - docker push "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
-
-unit_tests:
-  stage: Test
-  script:
-    - npm test
 
 codequality:
    image: docker:stable
@@ -106,25 +101,24 @@ sast:container:
     artifacts:
       paths: [gl-sast-container-report.json]
 
+docker-package:
+    stage: Release
+    script: 
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker pull "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
+    - docker tag "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" registry.gitlab.com/rapherd/sun-protect-app
+    - docker push registry.gitlab.com/rapherd/sun-protect-app
 
-# docker-package:
-#    stage: Release
-#    script: 
-#    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-#    - docker pull "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
-#    - docker tag "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" registry.gitlab.com/rapherd/sample-web-app
-#    - docker push registry.gitlab.com/rapherd/sample-web-app
-
-# k8s-qa-deploy-prepare:
-#   image: raphaelherding/k8s-bootstrap:v1.3
-#   stage: Deploy_QA
-#   environment: QA
-#   script:
-#   - echo "$k8s_config" > config
-#   - kubectl --kubeconfig config apply -f deployment/qa/namespace.yaml
-#   - deploy_qa_secrets_and_service_accounts 'petclinic-qa'
-#   - kubectl --kubeconfig config apply -f deployment/qa/deployment.yaml
-#   - kubectl --kubeconfig config apply -f deployment/qa/service.yaml
+k8s-qa-deploy-prepare:
+   image: raphaelherding/k8s-bootstrap:v1.3
+   stage: Deploy_QA
+   environment: QA
+   script:
+   - echo "$k8s_config" > config
+   - kubectl --kubeconfig config apply -f deployment/qa/namespace.yaml
+   - deploy_qa_secrets_and_service_accounts 'sun-protect-qa'
+   - kubectl --kubeconfig config apply -f deployment/qa/deployment.yaml
+   - kubectl --kubeconfig config apply -f deployment/qa/service.yaml
       
 # k8s-production-deploy-prepare:
 #   image: raphaelherding/k8s-bootstrap:v1.3
@@ -149,7 +143,6 @@ sast:container:
   export DATABASE_URL=${DATABASE_URL-$auto_database_url}
   export CI_APPLICATION_REPOSITORY=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
   export CI_APPLICATION_TAG=$CI_COMMIT_SHA
-  export KUBERNETES_NS='petclinic'
   export TILLER_NAMESPACE=$KUBE_NAMESPACE
   # Extract "MAJOR.MINOR" from CI_SERVER_VERSION and generate "MAJOR-MINOR-stable" for Security Products
   export SP_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
@@ -251,9 +244,9 @@ sast:container:
 
   function deploy_application() {
       # create or update deployment of  the application
-      kubectl --kubeconfig config -n $KUBERNETES_NS apply -f deployment/deployment.yaml
+      kubectl --kubeconfig config apply -f deployment/deployment.yaml
       # create or update service
-      kubectl --kubeconfig config -n $KUBERNETES_NS apply -f deployment/service.yaml
+      kubectl --kubeconfig config apply -f deployment/service.yaml
   }
 
 before_script:

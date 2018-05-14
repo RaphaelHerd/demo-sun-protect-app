@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sun-protect-ds
+  namespace: sun-protect
+spec:
+  replicas: 2
+  template:
+    metadata:
+      name: sun-protect-ds
+      labels:
+        app: sun-protect-ds
+    spec:
+      serviceAccountName: sun-protect-service-account
+      #imagePullSecrets:
+      #  - name: docker-pull-credentials
+      containers:
+      - name: sun-protect-ds
+        image: registry.gitlab.com/rapherd/sun-protect:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+---
