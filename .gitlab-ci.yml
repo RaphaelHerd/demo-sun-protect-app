@@ -10,8 +10,8 @@ stages:
   - Code
   - Build
   - Test
-#  - Release
-#  - Deploy_QA
+  - Release
+  - Deploy_QA
 #  - Deploy_PROD
  
 # maven-jar-compile:
