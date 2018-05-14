@@ -115,20 +115,20 @@ k8s-qa-deploy-prepare:
    #- kubectl --kubeconfig config apply -f deployment/qa/service.yaml
 
       
-# k8s-production-deploy-prepare:
-#   image: raphaelherding/k8s-bootstrap:v1.3
-#   stage: Deploy_PROD
-#   environment: PROD
-#   script:
-#   - echo "$k8s_config" > config
-#   - kubectl --kubeconfig config apply -f deployment/prod/namespace.yaml
-#   - kubectl --kubeconfig config apply -f deployment/prod/service.yaml
-#   - deploy_prod_secrets_and_service_accounts 'petclinic'
-#   - kubectl --kubeconfig config apply -f deployment/prod/deployment.yaml
-#   - kubectl --kubeconfig config get svc sun-protect-external-srv -o wide
-#   only:
-#     - master
-#   when: manual
+k8s-production-deploy-prepare:
+   image: raphaelherding/k8s-bootstrap:v1.3
+   stage: Deploy_PROD
+   environment: PROD
+   script:
+   - echo "$k8s_config" > config
+   - kubectl --kubeconfig config apply -f deployment/prod/namespace.yaml
+   - kubectl --kubeconfig config apply -f deployment/prod/service.yaml
+   - deploy_prod_secrets_and_service_accounts 'sun-protect'
+   - kubectl --kubeconfig config apply -f deployment/prod/deployment.yaml
+   - kubectl --kubeconfig config -n sun-protect get svc sun-protect-external-srv -o wide
+   only:
+     - master
+   when: manual
       
 # ---------------------------------------------------------------------------
 
