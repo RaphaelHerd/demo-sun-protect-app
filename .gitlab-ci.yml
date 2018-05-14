@@ -7,99 +7,99 @@ variables:
   SPRING_PROFILES_ACTIVE: gitlab-ci
 
 stages:
-#  - Code
-#  - Build
-#  - Test
-#  - Release
+  - Code
+  - Build
+  - Test
+  - Release
   - Deploy_QA
   - Deploy_PROD
  
-# get-dependencies:
-#   image: node:7
-#   stage: Code
-#   artifacts:
-#      paths:
-#        - node_modules
-#   script:
-#    - npm install
+get-dependencies:
+   image: node:7
+   stage: Code
+   artifacts:
+      paths:
+        - node_modules
+   script:
+    - npm install
 
-# docker-build:
-#    stage: Build
-#    script:
-#    - docker build -t "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" .
-#    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-#    - docker push "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
+docker-build:
+    stage: Build
+    script:
+    - docker build -t "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" .
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker push "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
 
-# codequality:
-#    image: docker:stable
-#    stage: Test
-#    variables:
-#      DOCKER_DRIVER: overlay2
-#    allow_failure: true
-#    services:
-#      - docker:stable-dind
-#    script:
-#      - setup_docker
-#      - codeclimate
-#    artifacts:
-#      paths: [codeclimate.json]
+codequality:
+   image: docker:stable
+   stage: Test
+   variables:
+     DOCKER_DRIVER: overlay2
+   allow_failure: true
+   services:
+     - docker:stable-dind
+   script:
+     - setup_docker
+     - codeclimate
+   artifacts:petclinic
+     paths: [codeclimate.json]
 
-# dependency_scanning:
-#    image: docker:stable
-#    stage: Test
-#    variables:
-#      DOCKER_DRIVER: overlay2
-#    allow_failure: true
-#    services:
-#      - docker:stable-dind
-#    script:
-#      - setup_docker
-#      - dependency_scanning
-#    artifacts:
-#      paths: [gl-dependency-scanning-report.json]
+dependency_scanning:
+   image: docker:stable
+   stage: Test
+   variables:
+     DOCKER_DRIVER: overlay2
+   allow_failure: true
+   services:
+     - docker:stable-dind
+   script:
+     - setup_docker
+     - dependency_scanning
+   artifacts:
+     paths: [gl-dependency-scanning-report.json]
 
-# #Static application security testing (SAST) is a set of technologies designed to analyze application source code, 
-# # byte code and binaries for coding and design conditions that are indicative of security vulnerabilities. 
-# # SAST solutions analyze an application from the “inside out” in a nonrunning state.
+#Static application security testing (SAST) is a set of technologies designed to analyze application source code, 
+# byte code and binaries for coding and design conditions that are indicative of security vulnerabilities. 
+# SAST solutions analyze an application from the “inside out” in a nonrunning state.
 
-# # SAST on program code level
-# sast:
-#     image: docker:stable
-#     stage: Test
-#     variables:
-#       DOCKER_DRIVER: overlay2
-#     allow_failure: true
-#     services:
-#       - docker:stable-dind
-#     script:
-#       - setup_docker
-#       - sast
-#     artifacts:
-#       paths: [gl-sast-report.json]
+# SAST on program code level
+sast:
+    image: docker:stable
+    stage: Test
+    variables:
+      DOCKER_DRIVER: overlay2
+    allow_failure: true
+    services:
+      - docker:stable-dind
+    script:
+      - setup_docker
+      - sast
+    artifacts:
+      paths: [gl-sast-report.json]
 
 
-#  # SAST on container level
-# sast:container:
-#     image: docker:stable
-#     stage: Test
-#     variables:
-#       DOCKER_DRIVER: overlay2
-#     allow_failure: true
-#     services:
-#       - docker:stable-dind
-#     script:
-#       - setup_docker
-#       - sast_container
-#     artifacts:
-#       paths: [gl-sast-container-report.json]
+ # SAST on container level
+sast:container:
+    image: docker:stable
+    stage: Test
+    variables:
+      DOCKER_DRIVER: overlay2
+    allow_failure: true
+    services:
+      - docker:stable-dind
+    script:
+      - setup_docker
+      - sast_container
+    artifacts:
+      paths: [gl-sast-container-report.json]
 
-# docker-package:
-#     stage: Release
-#     script: 
-#     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-#     - docker pull "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
-#     - docker tag "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" registry.gitlab.com/rapherd/sun-protect-app
-#     - docker push registry.gitlab.com/rapherd/sun-protect-app
+docker-package:
+    stage: Release
+    script: 
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker pull "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
+    - docker tag "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" registry.gitlab.com/rapherd/sun-protect-app
+    - docker push registry.gitlab.com/rapherd/sun-protect-app
 
 k8s-qa-deploy-prepare:
    image: raphaelherding/k8s-bootstrap:v1.3
