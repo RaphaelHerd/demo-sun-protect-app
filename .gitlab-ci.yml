@@ -12,7 +12,7 @@ stages:
 #  - Test
 #  - Release
   - Deploy_QA
-#  - Deploy_PROD
+  - Deploy_PROD
  
 # get-dependencies:
 #   image: node:7
