@@ -41,7 +41,7 @@ codequality:
    script:
      - setup_docker
      - codeclimate
-   artifacts:petclinic
+   artifacts:
      paths: [codeclimate.json]
 
 dependency_scanning:
